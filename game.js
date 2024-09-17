@@ -149,4 +149,23 @@ startRaceBtn.addEventListener('click', () => {
     isPracticeMode = false;
     menu.style.display = 'none';
     gameArea.style.display = 'block';
-   
+    startGame();
+});
+
+// Open practice options when practice mode is clicked
+startPracticeBtn.addEventListener('click', () => {
+    practiceOptions.style.display = 'block';
+});
+
+// Start practice mode with bot visibility
+startPracticeGameBtn.addEventListener('click', () => {
+    showBot = showBotCheckbox.checked;
+    isPracticeMode = true;
+    menu.style.display = 'none';
+    gameArea.style.display = 'block';
+    botStatusDisplay.style.display = showBot ? 'block' : 'none';  // Hide bot timer if not visible
+    startGame();
+});
+
+// Check if race is finished when page loads
+window.addEventListener('load', checkRaceStatus);

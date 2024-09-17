@@ -1,1 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stickman Hook Race - Multiplayer & Practice Mode</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="menu">
+        <h1>Stickman Hook Race</h1>
+        <button id="startRaceBtn">Start Race</button>
+        <button id="startPracticeBtn">Practice Mode</button>
 
+        <div id="practiceOptions" style="display: none;">
+            <h2>Practice Mode Options</h2>
+            <label>
+                <input type="checkbox" id="showBotCheckbox">
+                Show Bot
+            </label>
+            <br>
+            <button id="startPracticeGameBtn">Start Practice</button>
+        </div>
+
+        <input type="text" id="friendUrl" placeholder="Invite a friend..." readonly />
+        <button id="inviteFriendBtn">Invite Friend</button>
+    </div>
+
+    <div id="gameArea" style="display:none;">
+        <canvas id="gameCanvas"></canvas>
+        <div id="info">
+            <h1>Your Time: <span id="timer">0</span>s</h1>
+            <h2 id="botStatus" style="display:none;">Bot Time: <span id="botTimer">0</span>s</h2>
+            <h2 id="friendStatus">Waiting for your friend to finish...</h2>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

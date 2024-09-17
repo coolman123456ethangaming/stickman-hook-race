@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stickman Hook Race - Multiplayer & Practice Mode</title>
+    <title>Stickman Hook Clone</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,19 +11,11 @@
         <h1>Stickman Hook Race</h1>
         <button id="startRaceBtn">Start Race</button>
         <button id="startPracticeBtn">Practice Mode</button>
-
-        <div id="practiceOptions" style="display: none;">
-            <h2>Practice Mode Options</h2>
-            <label>
-                <input type="checkbox" id="showBotCheckbox">
-                Show Bot
-            </label>
-            <br>
-            <button id="startPracticeGameBtn">Start Practice</button>
+        <div id="practiceOptions" style="display:none;">
+            <label for="botVisibility">Show Bot:</label>
+            <input type="checkbox" id="botVisibility" />
+            <button id="startPracticeGameBtn">Play</button>
         </div>
-
-        <input type="text" id="friendUrl" placeholder="Invite a friend..." readonly />
-        <button id="inviteFriendBtn">Invite Friend</button>
     </div>
 
     <div id="gameArea" style="display:none;">
@@ -31,7 +23,7 @@
         <div id="info">
             <h1>Your Time: <span id="timer">0</span>s</h1>
             <h2 id="botStatus" style="display:none;">Bot Time: <span id="botTimer">0</span>s</h2>
-            <h2 id="friendStatus">Waiting for your friend to finish...</h2>
+            <h2 id="deathStatus" style="display:none;">You died! Press R to retry.</h2>
         </div>
     </div>
 

@@ -1,44 +1,171 @@
-body, html {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #282c34;
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = 800;
+canvas.height = 600;
+
+const stickman = { x: 100, y: 100, radius: 15, vx: 0, vy: 0, gravity: 0.5, isHooked: false };
+const bot = { x: 100, y: 100, radius: 15, vx: 0, vy: 0, gravity: 0.5, isHooked: false, speedFactor: 0.95 };
+let isGameRunning = false;
+let startTime;
+let showBot = false;
+let level;
+let isDead = false;
+
+// Grapple Points, Bounce Pads, and Hazards
+const grapplePoints = [];
+const bouncePads = [];
+const hazards = [];
+
+// Generate a random level with grapple points, bounce pads, and hazards
+function generateLevel() {
+    level = {
+        grapplePoints: [],
+        bouncePads: [],
+        hazards: []
+    };
+    
+    // Add random grapple points
+    for (let i = 0; i < 5; i++) {
+        level.grapplePoints.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height });
+    }
+    
+    // Add random bounce pads
+    for (let i = 0; i < 3; i++) {
+        level.bouncePads.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, width: 50, height: 10 });
+    }
+    
+    // Add random hazards
+    for (let i = 0; i < 2; i++) {
+        level.hazards.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, width: 50, height: 10 });
+    }
 }
 
-#menu {
-    text-align: center;
+function drawLevel() {
+    // Draw grapple points
+    level.grapplePoints.forEach(point => {
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 10, 0, Math.PI * 2);
+        ctx.fillStyle = 'red';
+        ctx.fill();
+        ctx.closePath();
+    });
+
+    // Draw bounce pads
+    level.bouncePads.forEach(pad => {
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(pad.x, pad.y, pad.width, pad.height);
+    });
+
+    // Draw hazards
+    level.hazards.forEach(hazard => {
+        ctx.fillStyle = 'black';
+        ctx.fillRect(hazard.x, hazard.y, hazard.width, hazard.height);
+    });
 }
 
-#gameCanvas {
-    border: 2px solid #fff;
-    background-color: #4caf50;
+// Stickman movement logic
+function stickmanMove() {
+    if (stickman.isHooked) {
+        // Grapple mechanics, simple swing physics
+        stickman.vx = (stickman.vx + (stickman.x - canvas.width / 2) * -0.01) * 0.99;
+        stickman.vy = (stickman.vy + (stickman.y - canvas.height / 2) * -0.01) * 0.99;
+    } else {
+        stickman.vy += stickman.gravity;
+    }
+    stickman.x += stickman.vx;
+    stickman.y += stickman.vy;
+
+    // Bounce pad logic
+    level.bouncePads.forEach(pad => {
+        if (stickman.x > pad.x && stickman.x < pad.x + pad.width && stickman.y + stickman.radius > pad.y && stickman.y - stickman.radius < pad.y + pad.height) {
+            stickman.vy = -15;  // Bounce upwards
+        }
+    });
+
+    // Hazard logic (death)
+    level.hazards.forEach(hazard => {
+        if (stickman.x > hazard.x && stickman.x < hazard.x + hazard.width && stickman.y + stickman.radius > hazard.y && stickman.y - stickman.radius < hazard.y + hazard.height) {
+            stickmanDie();
+        }
+    });
+
+    // Out-of-bounds death
+    if (stickman.y > canvas.height) {
+        stickmanDie();
+    }
 }
 
-#info {
-    text-align: center;
-    color: white;
-    margin-top: 20px;
+// Death function
+function stickmanDie() {
+    isDead = true;
+    document.getElementById('deathStatus').style.display = 'block';
+    isGameRunning = false;
 }
 
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    margin: 10px;
-    border: none;
-    background-color: #ff9800;
-    color: white;
-    cursor: pointer;
+// Game Loop
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!isDead) {
+        stickmanMove();
+        drawLevel();
+        drawStickman();
+    }
+
+    requestAnimationFrame(gameLoop);
 }
 
-button:hover {
-    background-color: #e67e22;
+// Draw Stickman
+function drawStickman() {
+    ctx.beginPath();
+    ctx.arc(stickman.x, stickman.y, stickman.radius, 0, Math.PI * 2);
+    ctx.fillStyle = 'white';
+    ctx.fill();
+    ctx.closePath();
 }
 
-input {
-    padding: 10px;
-    font-size: 16px;
-    margin: 10px;
+// Start game
+function startGame() {
+    isGameRunning = true;
+    startTime = Date.now();
+    generateLevel();
+    gameLoop();
 }
+
+// Event Listeners
+document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+        stickman.isHooked = !stickman.isHooked;  // Toggle hook when spacebar is pressed
+    } else if (e.code === 'KeyR' && isDead) {
+        resetGame();  // Reset on death
+    }
+});
+
+// Reset Game
+function resetGame() {
+    stickman.x = 100;
+    stickman.y = 100;
+    stickman.vx = 0;
+    stickman.vy = 0;
+    isDead = false;
+    document.getElementById('deathStatus').style.display = 'none';
+    startGame();
+}
+
+// UI Controls
+document.getElementById('startRaceBtn').addEventListener('click', () => {
+    document.getElementById('menu').style.display = 'none';
+    document.getElementById('gameArea').style.display = 'block';
+    startGame();
+});
+
+document.getElementById('startPracticeBtn').addEventListener('click', () => {
+    document.getElementById('practiceOptions').style.display = 'block';
+});
+
+document.getElementById('startPracticeGameBtn').addEventListener('click', () => {
+    showBot = document.getElementById('botVisibility').checked;
+    document.getElementById('menu').style.display = 'none';
+    document.getElementById('gameArea').style.display = 'block';
+    startGame();
+});
